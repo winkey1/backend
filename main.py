@@ -3,7 +3,7 @@ from pydantic import BaseModel
 import psycopg2
 from dotenv import load_dotenv
 import os
-
+from fastapi import Path
 
 app = FastAPI()
 
@@ -140,4 +140,21 @@ def get_monthly_income():
         ]
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch monthly income data: {str(e)}")
+    
+@app.delete("/orders/{order_id}")
+def delete_order(order_id: str = Path(..., description="ID dari order yang akan dihapus")):
+    try:
+        conn = psycopg2.connect(**DB_CONFIG)
+        cur = conn.cursor()
+        cur.execute("DELETE FROM orders WHERE id = %s RETURNING id", (order_id,))
+        result = cur.fetchone()
+        conn.commit()
+        cur.close()
+        conn.close()
 
+        if result:
+            return {"message": "Order berhasil dihapus"}
+        else:
+            raise HTTPException(status_code=404, detail="Order tidak ditemukan")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gagal menghapus order: {str(e)}")
