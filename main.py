@@ -17,6 +17,9 @@ DB_CONFIG = {
     "port": int(os.getenv("DB_PORT", 5432)),
 }
 
+class Layanan(BaseModel):
+    nama: str
+    harga: int
 
 class Order(BaseModel):
     id: str
@@ -158,3 +161,37 @@ def delete_order(order_id: str = Path(..., description="ID dari order yang akan 
             raise HTTPException(status_code=404, detail="Order tidak ditemukan")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Gagal menghapus order: {str(e)}")
+
+@app.get("/layanan")
+def get_layanan():
+    try:
+        conn = psycopg2.connect(**DB_CONFIG)
+        cur = conn.cursor()
+        cur.execute("SELECT id, nama, harga FROM layanan ORDER BY id ASC")
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+
+        return [
+            {"id": row[0], "nama": row[1], "harga": row[2]}
+            for row in rows
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gagal mengambil data layanan: {str(e)}")
+
+@app.post("/layanan", status_code=201)
+def create_layanan(layanan: Layanan):
+    try:
+        conn = psycopg2.connect(**DB_CONFIG)
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO layanan (nama, harga) VALUES (%s, %s) RETURNING id",
+            (layanan.nama, layanan.harga)
+        )
+        layanan_id = cur.fetchone()[0]
+        conn.commit()
+        cur.close()
+        conn.close()
+        return {"message": "Layanan berhasil ditambahkan", "id": layanan_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gagal menambahkan layanan: {str(e)}")
