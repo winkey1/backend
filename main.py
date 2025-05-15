@@ -196,7 +196,7 @@ def create_layanan(layanan: Layanan):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Gagal menambahkan layanan: {str(e)}")
 
-@app.get("/orders/{order_id}", response_model=Order)
+@app.get("/order/{order_id}", response_model=Order)
 def get_order(order_id: str = Path(..., description="ID dari order")):
     try:
         conn = psycopg2.connect(**DB_CONFIG)
