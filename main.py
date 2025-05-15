@@ -195,3 +195,36 @@ def create_layanan(layanan: Layanan):
         return {"message": "Layanan berhasil ditambahkan", "id": layanan_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Gagal menambahkan layanan: {str(e)}")
+
+@app.get("/api/orders/{order_id}", response_model=Order)
+def get_order(order_id: str = Path(..., description="ID dari order")):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        query = """
+            SELECT id, nama, layanan, total, status, created_at, weight
+            FROM orders
+            WHERE id = %s
+        """
+        cursor.execute(query, (order_id,))
+        result = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if not result:
+            raise HTTPException(status_code=404, detail="Order not found")
+
+        return {
+            "id": result[0],
+            "nama": result[1],
+            "layanan": result[2],
+            "total": result[3],
+            "status": result[4],
+            "created_at": result[5].isoformat(),
+            "weight": result[6],
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
