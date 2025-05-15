@@ -199,7 +199,7 @@ def create_layanan(layanan: Layanan):
 @app.get("/api/orders/{order_id}", response_model=Order)
 def get_order(order_id: str = Path(..., description="ID dari order")):
     try:
-        conn = get_db_connection()
+        conn = psycopg2.connect(**DB_CONFIG)
         cursor = conn.cursor()
 
         query = """
