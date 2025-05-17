@@ -173,7 +173,7 @@ def get_layanan():
         conn.close()
 
         return [
-            {"id": row[0], "nama": row[1], "harga": row[2]}
+            {"id": row[0], "nama": row[1], "harga_per_kg": row[2]}
             for row in rows
         ]
     except Exception as e:
