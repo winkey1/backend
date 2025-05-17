@@ -19,7 +19,7 @@ DB_CONFIG = {
 
 class Layanan(BaseModel):
     nama: str
-    harga: int
+    harga_per_kg: int
 
 class Order(BaseModel):
     id: str
@@ -186,7 +186,7 @@ def create_layanan(layanan: Layanan):
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO layanan (nama, harga_per_kg) VALUES (%s, %s) RETURNING id",
-            (layanan.nama, layanan.harga)
+            (layanan.nama, layanan.harga_per_kg)
         )
         layanan_id = cur.fetchone()[0]
         conn.commit()
@@ -195,6 +195,7 @@ def create_layanan(layanan: Layanan):
         return {"message": "Layanan berhasil ditambahkan", "id": layanan_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Gagal menambahkan layanan: {str(e)}")
+
 
 @app.get("/order/{order_id}", response_model=Order)
 def get_order(order_id: str = Path(..., description="ID dari order")):
