@@ -229,3 +229,16 @@ def get_order(order_id: str = Path(..., description="ID dari order")):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.delete("/layanan/{layanan_id}")
+def delete_layanan(layanan_id: int):
+    try:
+        conn = psycopg2.connect(**DB_CONFIG)
+        cur = conn.cursor()
+        cur.execute("DELETE FROM layanan WHERE id = %s", (layanan_id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return {"message": "Layanan berhasil dihapus"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gagal menghapus layanan: {str(e)}")
