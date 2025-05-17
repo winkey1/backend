@@ -167,7 +167,7 @@ def get_layanan():
     try:
         conn = psycopg2.connect(**DB_CONFIG)
         cur = conn.cursor()
-        cur.execute("SELECT id, nama, harga FROM layanan ORDER BY id ASC")
+        cur.execute("SELECT id, nama, harga_per_kg FROM layanan ORDER BY id ASC")
         rows = cur.fetchall()
         cur.close()
         conn.close()
@@ -185,7 +185,7 @@ def create_layanan(layanan: Layanan):
         conn = psycopg2.connect(**DB_CONFIG)
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO layanan (nama, harga) VALUES (%s, %s) RETURNING id",
+            "INSERT INTO layanan (nama, harga_per_kg) VALUES (%s, %s) RETURNING id",
             (layanan.nama, layanan.harga)
         )
         layanan_id = cur.fetchone()[0]
